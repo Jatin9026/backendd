@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: mern-backend
+    env: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DB_URI
+        value: "mongodb+srv://jatingupta918306:jatin%401415@cluster0.8aipfnp.mongodb.net/e-com"
+      - key: JWT_SECRET
+        value: "hfdiqwdsafhfdfhisfjdgawsd"
+      - key: JWT_EXPIRE
+        value: "3d"
+      - key: PORT
+        value: "8000"
+      - key: NODE_ENV
+        value: "DEVELOPMENT"
+      - key: EXPIRE_COOKIE
+        value: "7"
+      - key: SMTP_SERVICE
+        value: "gmail"
+      - key: SMTP_MAIL
+        value: "jatingupta918306@gmail.com"
+      - key: SMTP_PASSWORD
+        value: "fush zgpx odzx pqyi"
+      - key: CLOUDINARY_NAME
+        value: "jatinn"
+      - key: CLOUDINARY_API_KEY
+        value: "453354827292564"
+      - key: CLOUDINARY_API_SECRET
+        value: "O0V49a1ekV9JaEfZyBrEtMzzx5g"
+      - key: RAZORPAY_KEY_ID
+        value: "rzp_test_RA17uF0YXDWUNg"
+      - key: RAZORPAY_KEY_SECRET
+        value: "j9ICywrb1ilIn7qowDxQCWhP"
