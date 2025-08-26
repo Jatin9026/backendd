@@ -7,9 +7,9 @@ import Razorpay from 'razorpay';
 // Load env
 dotenv.config({ path: './config/config.env' }); // correct relative path from backend folder
 
+
 // DB connection
 connectMongoDatabase();
-
 // Cloudinary config
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,

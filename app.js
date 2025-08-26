@@ -21,6 +21,9 @@ app.use("/api/v1",user)
 app.use("/api/v1",order)
 app.use("/api/v1",payment)
 
+app.get("/", (req, res) => {
+    res.send("Backend API is running!");
+});
 app.use(errorHandleMiddleware)
 dotenv.config({path:'backend/config/config.env'})
 export default app;
