@@ -6,25 +6,37 @@ import { sendToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import {v2 as cloudinary} from 'cloudinary';
 
-export const registerUser=handleAsyncError(async(req , res , next)=>{
-    const {name,email,password,avatar}=req.body;
-    const myCloud= await cloudinary.uploader.upload(avatar,{
-        folder:'avatars',
-        width:150,
-        crop:'scale'
-    })
-    const user=await User.create({
+//register
+export const registerUser = handleAsyncError(async (req, res, next) => {
+    const { name, email, password, avatar } = req.body;
+    let existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return res.status(400).json({
+            success: false,
+            message: "User already exists with this email."
+        });
+    }
+    let myCloud;
+    if (avatar) {
+        myCloud = await cloudinary.uploader.upload(avatar, {
+            folder: "avatars",
+            width: 150,
+            crop: "scale"
+        });
+    }
+    const user = await User.create({
         name,
         email,
         password,
-        avatar:{
-            public_id:myCloud.public_id,
-            url:myCloud.secure_url
-
-        }
-    })
-    sendToken(user,201,res)
-})
+        avatar: myCloud
+            ? {
+                  public_id: myCloud.public_id,
+                  url: myCloud.secure_url
+              }
+            : undefined
+    });
+    sendToken(user, 201, res);
+});
 
 // Login
 export const loginUser=handleAsyncError(async(req , res, next)=>{
@@ -66,7 +78,7 @@ export const requestPasswordReset=handleAsyncError(async(req,res,next)=>{
     try{
         resetToken=user.generatePasswordResetToken()
         await user.save({validateBeforeSave:false})
-        
+
     }catch(error){
         return next(new HandleError("Could not save reset token, please try again later",500))
     }
@@ -156,7 +168,6 @@ export const updateProfile=handleAsyncError(async(req,res,next)=>{
         width:150,
         crop:'scale'
         })
-
         updateUserDetails.avatar={
             public_id:myCloud.public_id,
             url:myCloud.secure_url,
@@ -199,6 +210,9 @@ export const getSingleUser=handleAsyncError(async(req,res,next)=>{
 //Admin- Changing user role
 export const updateUserRole=handleAsyncError(async(req,res,next)=>{
     const {role}=req.body;
+    if (req.user.id.toString() === req.params.id.toString()) {
+      return next(new HandleError("You cannot change your own role.", 403));
+  }
     const newUserData={
         role
     }
@@ -213,11 +227,7 @@ export const updateUserRole=handleAsyncError(async(req,res,next)=>{
         success: true,
         user
     })
-
-    
 })
-
-
 // Admin - Delete User Profile
 export const deleteUser=handleAsyncError(async(req,res,next)=>{
    const user =await User.findById(req.params.id);
@@ -232,3 +242,235 @@ export const deleteUser=handleAsyncError(async(req,res,next)=>{
         message: "User Deleted Successfully"
     })
 })
+
+
+// Add Bookmark
+export const addBookmark = handleAsyncError(async (req, res, next) => {
+    const { productId } = req.body;
+    const user = await User.findById(req.user.id);
+  
+    if (user.bookmarks.includes(productId)) {
+      return next(new HandleError("Product already bookmarked", 400));
+    }
+  
+    user.bookmarks.push(productId);
+    await user.save();
+  
+    res.status(200).json({
+      success: true,
+      bookmarks: user.bookmarks
+    });
+  });
+  
+// Remove Bookmark
+export const removeBookmark = handleAsyncError(async (req, res, next) => {
+    const { productId } = req.params;
+    const user = await User.findById(req.user.id);
+  
+    user.bookmarks = user.bookmarks.filter(id => id.toString() !== productId);
+    await user.save();
+  
+    res.status(200).json({
+      success: true,
+      bookmarks: user.bookmarks
+    });
+  });
+  
+// Get Bookmarks
+export const getBookmarks = handleAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.user.id).populate("bookmarks");
+    res.status(200).json({
+      success: true,
+      bookmarks: user.bookmarks
+    });
+  });
+
+//  ACCOUNT SECTION
+
+// Wallet Balance
+export const getWalletBalance = handleAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  res.status(200).json({
+    success: true,
+    walletBalance: user.walletBalance
+  });
+});
+// Get all addresses
+export const getAddresses = handleAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  res.status(200).json({
+    success: true,
+    addresses: user.addresses
+  });
+});
+
+// Add new address
+export const addAddress = handleAsyncError(async (req, res, next) => {
+  const { street, city, state, country, postalCode, isDefault } = req.body;
+  const user = await User.findById(req.user.id);
+  if (isDefault) {
+    user.addresses.forEach(addr => (addr.isDefault = false));
+  }
+  user.addresses.push({ street, city, state, country, postalCode, isDefault });
+  await user.save();
+  res.status(201).json({
+    success: true,
+    addresses: user.addresses
+  });
+});
+// Update address
+export const updateAddress = handleAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const { street, city, state, country, postalCode, isDefault } = req.body;
+  const user = await User.findById(req.user.id);
+
+  const address = user.addresses.id(id);
+  if (!address) {
+    return next(new HandleError("Address not found", 404));
+  }
+
+  if (isDefault) {
+    user.addresses.forEach(addr => (addr.isDefault = false));
+  }
+
+  Object.assign(address, { street, city, state, country, postalCode, isDefault });
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    addresses: user.addresses
+  });
+});
+// Delete address
+export const removeAddress = handleAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user.id);
+
+  const address = user.addresses.id(id);
+  if (!address) {
+    return next(new HandleError("Address not found", 404));
+  }
+
+  address.remove();
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    addresses: user.addresses
+  });
+});
+
+// Update preferences
+export const updatePreferences = handleAsyncError(async (req, res, next) => {
+  const { preferences } = req.body; 
+  const user = await User.findById(req.user.id);
+  if (preferences && typeof preferences === "object") {
+    Object.keys(preferences).forEach(key => {
+      user.preferences.set(key, preferences[key]);
+    });
+  }
+  await user.save();
+  res.status(200).json({
+    success: true,
+    preferences: user.preferences
+  });
+});
+// Toggle notifications
+export const toggleNotifications = handleAsyncError(async (req, res, next) => {
+  const { enabled } = req.body; // expects { enabled: true/false }
+  const user = await User.findById(req.user.id);
+
+  user.notificationsEnabled = enabled;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    notificationsEnabled: user.notificationsEnabled
+  });
+});
+
+//  SETTINGS SECTION
+// Update language
+export const updateLanguage = handleAsyncError(async (req, res, next) => {
+  const { language } = req.body;
+  const user = await User.findById(req.user.id);
+
+  user.language = language || user.language;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    language: user.language
+  });
+});
+// Update location
+export const updateLocation = handleAsyncError(async (req, res, next) => {
+  const { location } = req.body;
+  const user = await User.findById(req.user.id);
+
+  user.location = location || user.location;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    location: user.location
+  });
+});
+ // Add To Cart
+ export const addToCart = handleAsyncError(async (req, res, next) => {
+  const { productId, quantity } = req.body;
+  const user = await User.findById(req.user.id);
+
+  const itemIndex = user.cart.findIndex(item => item.productId.toString() === productId);
+  if (itemIndex > -1) {
+    user.cart[itemIndex].quantity += quantity || 1;
+  } else {
+    user.cart.push({ productId, quantity: quantity || 1 });
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    cart: user.cart
+  });
+});
+
+// Update Cart Item
+export const updateCartItem = handleAsyncError(async (req, res, next) => {
+  const { productId } = req.params;
+  const { quantity } = req.body;
+  const user = await User.findById(req.user.id);
+
+  const itemIndex = user.cart.findIndex(item => item.productId.toString() === productId);
+  if (itemIndex === -1) {
+    return next(new HandleError("Product not found in cart", 404));
+  }
+
+  user.cart[itemIndex].quantity = quantity;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    cart: user.cart
+  });
+});
+
+// Remove Cart Item
+export const removeFromCart = handleAsyncError(async (req, res, next) => {
+  const { productId } = req.params;
+  const user = await User.findById(req.user.id);
+
+  user.cart = user.cart.filter(item => item.productId.toString() !== productId);
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    cart: user.cart
+  });
+});
+// Get Cart
+export const getCart = handleAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.user.id).populate("cart.productId");
+  res.status(200).json({ success: true, cart: user.cart });
+});

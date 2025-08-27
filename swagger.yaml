@@ -2,13 +2,35 @@ openapi: 3.0.0
 info:
   title: E-commerce Backend API
   version: 1.0.0
-  description: Complete API documentation for your e-commerce backend
+  description: Complete API documentation for an E-commerce backend.
 servers:
   - url: http://localhost:3000/api/v1
     description: Local server
-
+tags:
+  - name: Products
+    description: Endpoints for managing products.
+  - name: Reviews
+    description: Endpoints for managing product reviews.
+  - name: Users
+    description: Endpoints for user authentication and profile management.
+  - name: Orders
+    description: Endpoints for managing user orders.
+  - name: Payments
+    description: Endpoints for handling payment processing.
+  - name: Support & FAQs
+    description: Endpoints for help-related features.
+  - name: Notifications
+    description: Endpoints for managing user notifications.
+  - name: Search
+    description: Endpoints for search functionality.
+  - name: Account
+    description: Endpoints for managing user account details like addresses and preferences.
+  - name: Cart & Wishlist
+    description: Endpoints for managing shopping cart and bookmarks (wishlist).
+  - name: Settings
+    description: Endpoints for user settings.
 paths:
-  # Product Routes
+  # General Product Routes
   /products:
     get:
       summary: Get all products
@@ -19,15 +41,21 @@ paths:
           name: keyword
           schema:
             type: string
-          description: Search keyword
+          description: Search keyword to filter products by name or description.
         - in: query
           name: page
           schema:
             type: integer
-          description: Page number for pagination
+            default: 1
+          description: Page number for pagination.
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter products by category.
       responses:
         '200':
-          description: List of products
+          description: List of products with pagination info.
           content:
             application/json:
               schema:
@@ -35,47 +63,39 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   products:
                     type: array
                     items:
                       $ref: '#/components/schemas/Product'
                   productCount:
                     type: integer
+                    example: 50
                   resultsPerPage:
                     type: integer
+                    example: 8
                   totalPages:
                     type: integer
+                    example: 7
                   currentPage:
                     type: integer
-
-  /product/{id}:
+                    example: 1
+  /products/category/{category}:
     get:
-      summary: Get single product by ID
+      summary: Get products by category
       tags:
         - Products
       parameters:
         - in: path
-          name: id
+          name: category
           required: true
           schema:
             type: string
-          description: Product ID
+            example: "Electronics"
+          description: The category name to filter by.
       responses:
         '200':
-          description: Product found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-
-  /admin/products:
-    get:
-      summary: Get all products (Admin)
-      tags:
-        - Products
-      responses:
-        '200':
-          description: Admin products list
+          description: A list of products belonging to the specified category.
           content:
             application/json:
               schema:
@@ -83,29 +103,102 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   products:
                     type: array
                     items:
                       $ref: '#/components/schemas/Product'
-
-  /admin/product/create:
-    post:
-      summary: Create a new product (Admin)
+  /products/tag/{tag}:
+    get:
+      summary: Get products by tag
       tags:
         - Products
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
+      parameters:
+        - in: path
+          name: tag
+          required: true
+          schema:
+            type: string
+            example: "gadgets"
+          description: The tag to filter by.
       responses:
-        '201':
-          description: Product created successfully
-
-  /admin/product/{id}:
-    put:
-      summary: Update a product (Admin)
+        '200':
+          description: A list of products with the specified tag.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+  /products/popular:
+    get:
+      summary: Get popular products
+      tags:
+        - Products
+      responses:
+        '200':
+          description: A list of popular products.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+  /products/best-sellers:
+    get:
+      summary: Get best-selling products
+      tags:
+        - Products
+      responses:
+        '200':
+          description: A list of best-selling products.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+  /products/flash-sale:
+    get:
+      summary: Get products currently on flash sale
+      tags:
+        - Products
+      responses:
+        '200':
+          description: A list of products on flash sale.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+  /product/{id}:
+    get:
+      summary: Get a single product by ID
       tags:
         - Products
       parameters:
@@ -114,85 +207,117 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
+            example: "60c72b2f9b1d8c001f8e4b7b"
+          description: The ID of the product.
       responses:
         '200':
-          description: Product updated
-    delete:
-      summary: Delete a product (Admin)
-      tags:
-        - Products
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Product deleted
-
-  /review:
+          description: Product found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  product:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Product Not Found"
+  # Product Reviews
+  /product/review:
     put:
-      summary: Create or update review
+      summary: Create or update a product review
       tags:
         - Reviews
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - rating
+                - comment
+                - productId
               properties:
                 rating:
                   type: number
+                  example: 4.5
                 comment:
                   type: string
+                  example: "Great product, highly recommend!"
                 productId:
                   type: string
+                  example: "60c72b2f9b1d8c001f8e4b7b"
       responses:
         '200':
-          description: Review created/updated
-
-  /admin/reviews:
+          description: Review created or updated successfully.
+  /product/{id}/reviews:
     get:
-      summary: Get product reviews (Admin)
+      summary: Get all reviews for a product
       tags:
         - Reviews
       parameters:
-        - in: query
+        - in: path
           name: id
+          required: true
           schema:
             type: string
-          description: Product ID
+            example: "60c72b2f9b1d8c001f8e4b7b"
+          description: The ID of the product.
       responses:
         '200':
-          description: Product reviews
+          description: List of reviews for the product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+  /product/{productId}/review/{reviewId}:
     delete:
-      summary: Delete review (Admin)
+      summary: Delete a review
       tags:
         - Reviews
+      security:
+        - bearerAuth: []
       parameters:
-        - in: query
-          name: id
-          schema:
-            type: string
-          description: Review ID
-        - in: query
+        - in: path
           name: productId
+          required: true
           schema:
             type: string
-          description: Product ID
+          description: The ID of the product.
+        - in: path
+          name: reviewId
+          required: true
+          schema:
+            type: string
+          description: The ID of the review to delete.
       responses:
         '200':
-          description: Review deleted
-
-  # User Routes
+          description: Review deleted successfully.
+  # User Auth Routes
   /register:
     post:
       summary: Register a new user
@@ -203,56 +328,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserRegistration'
       responses:
         '201':
-          description: User registered successfully
-
-  /login:
-    post:
-      summary: Login user
-      tags:
-        - Users
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                password:
-                  type: string
-      responses:
-        '200':
-          description: User logged in
-
-  /logout:
-    post:
-      summary: Logout user
-      tags:
-        - Users
-      responses:
-        '200':
-          description: User logged out
-
-  /profile:
-    get:
-      summary: Get logged-in user details
-      tags:
-        - Users
-      responses:
-        '200':
-          description: User details
+          description: User registered successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-
-  /password/forgot:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+  /login:
     post:
-      summary: Request password reset
+      summary: Log in a user
       tags:
         - Users
       requestBody:
@@ -261,16 +355,52 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - email
+                - password
               properties:
                 email:
                   type: string
+                  format: email
+                  example: "john.doe@example.com"
+                password:
+                  type: string
+                  example: "password123"
       responses:
         '200':
-          description: Reset email sent
-
+          description: User logged in successfully.
+  /logout:
+    post:
+      summary: Log out a user
+      tags:
+        - Users
+      responses:
+        '200':
+          description: User logged out successfully.
+  /password/forgot:
+    post:
+      summary: Request a password reset
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john.doe@example.com"
+      responses:
+        '200':
+          description: Password reset email sent.
   /reset/{token}:
     post:
-      summary: Reset password
+      summary: Reset password with token
       tags:
         - Users
       parameters:
@@ -279,29 +409,37 @@ paths:
           required: true
           schema:
             type: string
+          description: The password reset token from the email.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - password
+                - confirmPassword
               properties:
                 password:
                   type: string
+                  example: "newpassword123"
                 confirmPassword:
                   type: string
+                  example: "newpassword123"
       responses:
         '200':
-          description: Password reset successfully
-
-  /admin/users:
+          description: Password reset successfully.
+  # User Profile & Account
+  /profile:
     get:
-      summary: Get all users (Admin)
+      summary: Get logged-in user details
       tags:
         - Users
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: List of users
+          description: User details retrieved.
           content:
             application/json:
               schema:
@@ -309,35 +447,16 @@ paths:
                 properties:
                   success:
                     type: boolean
-                  users:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
-
-  /admin/user/{id}:
-    get:
-      summary: Get single user (Admin)
-      tags:
-        - Users
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: User details
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+  /profile/update:
     put:
-      summary: Update user role (Admin)
+      summary: Update user profile
       tags:
         - Users
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -345,31 +464,209 @@ paths:
             schema:
               type: object
               properties:
-                role:
+                name:
                   type: string
+                  example: "Johnathon Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john.doe.updated@example.com"
+                avatar:
+                  type: string
+                  example: "base64encodedimage"
       responses:
         '200':
-          description: User role updated
-    delete:
-      summary: Delete user (Admin)
+          description: Profile updated successfully.
+  /password/update:
+    put:
+      summary: Update user password
       tags:
         - Users
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - oldPassword
+                - newPassword
+                - confirmPassword
+              properties:
+                oldPassword:
+                  type: string
+                  example: "password123"
+                newPassword:
+                  type: string
+                  example: "newpassword123"
+                confirmPassword:
+                  type: string
+                  example: "newpassword123"
+      responses:
+        '200':
+          description: Password updated successfully.
+  # Cart & Wishlist
+  /cart:
+    get:
+      summary: Get user's cart
+      tags:
+        - Cart & Wishlist
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cart retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  cart:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CartItem'
+    post:
+      summary: Add a product to the cart
+      tags:
+        - Cart & Wishlist
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+              properties:
+                productId:
+                  type: string
+                  example: "60c72b2f9b1d8c001f8e4b7b"
+                quantity:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Product added to cart.
+  /cart/{productId}:
+    put:
+      summary: Update a cart item's quantity
+      tags:
+        - Cart & Wishlist
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
-          name: id
+          name: productId
           required: true
           schema:
             type: string
+          description: The ID of the product in the cart.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: integer
+                  example: 3
       responses:
         '200':
-          description: User deleted
-
+          description: Cart item quantity updated.
+    delete:
+      summary: Remove a product from the cart
+      tags:
+        - Cart & Wishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to remove.
+      responses:
+        '200':
+          description: Product removed from cart.
+  /account/wishlist:
+    get:
+      summary: Get user's bookmarked products (wishlist)
+      tags:
+        - Cart & Wishlist
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Bookmarks retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  bookmarks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      summary: Add a product to bookmarks
+      tags:
+        - Cart & Wishlist
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+              properties:
+                productId:
+                  type: string
+                  example: "60c72b2f9b1d8c001f8e4b7b"
+      responses:
+        '200':
+          description: Product added to bookmarks.
+  /account/wishlist/{productId}:
+    delete:
+      summary: Remove a product from bookmarks
+      tags:
+        - Cart & Wishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to remove.
+      responses:
+        '200':
+          description: Product removed from bookmarks.
   # Order Routes
   /new/order:
     post:
-      summary: Create new order
+      summary: Create a new order
       tags:
         - Orders
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -378,110 +675,71 @@ paths:
               $ref: '#/components/schemas/Order'
       responses:
         '201':
-          description: Order created
-
+          description: Order created successfully.
   /order/{id}:
     get:
-      summary: Get single order
+      summary: Get a single order by ID
       tags:
         - Orders
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: string
+            example: "60c72b2f9b1d8c001f8e4b7c"
+          description: The ID of the order.
       responses:
         '200':
-          description: Order details
-
+          description: Order details retrieved.
   /orders/user:
     get:
-      summary: Get all orders of logged-in user
+      summary: Get all orders for the logged-in user
       tags:
         - Orders
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Orders list
-
-  /admin/order/{id}:
-    put:
-      summary: Update order status (Admin)
-      tags:
-        - Orders
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  example: "Delivered"
-      responses:
-        '200':
-          description: Order status updated
-    delete:
-      summary: Delete order (Admin)
-      tags:
-        - Orders
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Order deleted
-
-  /admin/orders:
-    get:
-      summary: Get all orders (Admin)
-      tags:
-        - Orders
-      responses:
-        '200':
-          description: All orders
-
+          description: User's orders list.
   # Payment Routes
   /payment/process:
     post:
-      summary: Process payment
+      summary: Process a payment
       tags:
         - Payments
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - amount
               properties:
                 amount:
                   type: number
+                  example: 50000
       responses:
         '200':
-          description: Payment order created
-
+          description: Payment order created.
   /getKey:
     get:
       summary: Get Razorpay API Key
       tags:
         - Payments
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: API key sent
-
+          description: Razorpay API Key retrieved.
   /paymentVerification:
     post:
-      summary: Verify payment
+      summary: Verify a payment
       tags:
         - Payments
       requestBody:
@@ -490,6 +748,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - razorpay_payment_id
+                - razorpay_order_id
+                - razorpay_signature
               properties:
                 razorpay_payment_id:
                   type: string
@@ -499,76 +761,580 @@ paths:
                   type: string
       responses:
         '200':
-          description: Payment verification result
-
+          description: Payment verification result.
+  # Help & Support
+  /faqs:
+    get:
+      summary: Get all FAQs
+      tags:
+        - Support & FAQs
+      responses:
+        '200':
+          description: A list of FAQs.
+  /support/ticket:
+    post:
+      summary: Create a new support ticket
+      tags:
+        - Support & FAQs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subject
+                - message
+              properties:
+                subject:
+                  type: string
+                  example: "Problem with my order"
+                message:
+                  type: string
+                  example: "The item I received is damaged."
+      responses:
+        '201':
+          description: Ticket created successfully.
+  /support/tickets:
+    get:
+      summary: Get logged-in user's support tickets
+      tags:
+        - Support & FAQs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of support tickets.
+  # Notifications
+  /notifications:
+    get:
+      summary: Get logged-in user's notifications
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of notifications.
+  /notifications/{id}/read:
+    put:
+      summary: Mark a notification as read
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the notification.
+      responses:
+        '200':
+          description: Notification marked as read.
+  # Search
+  /search:
+    post:
+      summary: Add a search query to recent searches
+      tags:
+        - Search
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  example: "smartwatch"
+      responses:
+        '201':
+          description: Search query saved.
+  /search/data:
+    get:
+      summary: Get recent, popular, and category search data
+      tags:
+        - Search
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Search data retrieved.
+  # Account Addresses
+  /account/addresses:
+    get:
+      summary: Get user's addresses
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Addresses retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  addresses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Address'
+    post:
+      summary: Add a new address
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressInput'
+      responses:
+        '201':
+          description: Address added successfully.
+  /account/addresses/{id}:
+    put:
+      summary: Update an address
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the address to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressInput'
+      responses:
+        '200':
+          description: Address updated successfully.
+    delete:
+      summary: Remove an address
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the address to remove.
+      responses:
+        '200':
+          description: Address removed successfully.
+  # Account Settings
+  /personalization/preferences:
+    put:
+      summary: Update user preferences
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  example:
+                    theme: "dark"
+                    email_promotions: "true"
+      responses:
+        '200':
+          description: Preferences updated.
+  /personalization/notifications:
+    put:
+      summary: Toggle user notifications
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - enabled
+              properties:
+                enabled:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Notifications setting updated.
+  /settings/language:
+    put:
+      summary: Update user language
+      tags:
+        - Settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - language
+              properties:
+                language:
+                  type: string
+                  example: "es"
+      responses:
+        '200':
+          description: Language updated.
+  /settings/location:
+    put:
+      summary: Update user location
+      tags:
+        - Settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - location
+              properties:
+                location:
+                  type: string
+                  example: "New York, NY"
+      responses:
+        '200':
+          description: Location updated.
+  # Admin Routes
+  /admin/products:
+    get:
+      summary: Get all products (Admin)
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Admin products list.
+  /admin/product:
+    post:
+      summary: Create a new product (Admin)
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Product created successfully.
+  /admin/product/{id}:
+    put:
+      summary: Update a product (Admin)
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: Product updated.
+    delete:
+      summary: Delete a product (Admin)
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the product.
+      responses:
+        '200':
+          description: Product deleted successfully.
+  /admin/product/{id}/sale:
+    put:
+      summary: Toggle a product's sale status (Admin)
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                salePrice:
+                  type: number
+                  example: 899
+      responses:
+        '200':
+          description: Sale status toggled.
+  /admin/order/{id}:
+    put:
+      summary: Update order status (Admin)
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [Processing, Shipped, Delivered]
+                  example: "Delivered"
+      responses:
+        '200':
+          description: Order status updated successfully.
+    delete:
+      summary: Delete an order (Admin)
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the order.
+      responses:
+        '200':
+          description: Order deleted successfully.
+  /admin/orders:
+    get:
+      summary: Get all orders (Admin)
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All orders list.
+  /admin/users:
+    get:
+      summary: Get all users (Admin)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of all users.
+  /admin/user/{id}:
+    get:
+      summary: Get a single user (Admin)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the user.
+      responses:
+        '200':
+          description: User details retrieved.
+    put:
+      summary: Update a user's role (Admin)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role
+              properties:
+                role:
+                  type: string
+                  enum: [user, admin]
+                  example: "admin"
+      responses:
+        '200':
+          description: User role updated.
+    delete:
+      summary: Delete a user (Admin)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the user.
+      responses:
+        '200':
+          description: User deleted successfully.
+  /admin/support/ticket/{id}:
+    put:
+      summary: Update a support ticket's status (Admin)
+      tags:
+        - Support & FAQs
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the support ticket.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [open, in-progress, resolved]
+                  example: "resolved"
+      responses:
+        '200':
+          description: Ticket status updated.
+  /admin/notification:
+    post:
+      summary: Create a notification for a user (Admin)
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - title
+                - message
+              properties:
+                type:
+                  type: string
+                  enum: [OrderConfirmed, SaleAlert, Other]
+                  example: "SaleAlert"
+                title:
+                  type: string
+                  example: "Flash Sale!"
+                message:
+                  type: string
+                  example: "Get 50% off on all electronics today only!"
+      responses:
+        '201':
+          description: Notification created.
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
-    Product:
-      type: object
-      required:
-        - name
-        - price
-        - stock
-      properties:
-        name:
-          type: string
-          example: "iPhone 14"
-        price:
-          type: number
-          example: 999
-        stock:
-          type: integer
-          example: 50
-        description:
-          type: string
-          example: "Latest Apple iPhone"
-        image:
-          type: array
-          items:
-            type: object
-            properties:
-              public_id:
-                type: string
-              url:
-                type: string
-        reviews:
-          type: array
-          items:
-            type: object
-            properties:
-              user:
-                type: string
-              name:
-                type: string
-              rating:
-                type: number
-              comment:
-                type: string
-        ratings:
-          type: number
-          example: 4.5
-        numOfReviews:
-          type: integer
-          example: 10
-
     User:
       type: object
-      required:
-        - name
-        - email
       properties:
+        _id:
+          type: string
+          readOnly: true
         name:
           type: string
-          example: "John Doe"
         email:
           type: string
-          example: "john@example.com"
-        password:
-          type: string
-          example: "password123"
-        role:
-          type: string
-          example: "user"
         avatar:
           type: object
           properties:
@@ -576,53 +1342,229 @@ components:
               type: string
             url:
               type: string
-
-    Order:
+        role:
+          type: string
+          enum: [user, admin]
+        walletBalance:
+          type: number
+        preferences:
+          type: object
+          additionalProperties:
+            type: string
+        language:
+          type: string
+        location:
+          type: string
+        notificationsEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    UserRegistration:
       type: object
       required:
-        - shippingInfo
-        - orderItems
-        - paymentInfo
-        - totalPrice
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        password:
+          type: string
+          example: "password123"
+        avatar:
+          type: string
+          example: "base64encodedimage"
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        salePrice:
+          type: number
+        discount:
+          type: number
+        isOnSale:
+          type: boolean
+        isPopular:
+          type: boolean
+        isBestSeller:
+          type: boolean
+        isFlashSale:
+          type: boolean
+        flashSaleEnd:
+          type: string
+          format: date-time
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        stock:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        ratings:
+          type: number
+        numOfReviews:
+          type: integer
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+        user:
+          type: string
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Wireless Headphones"
+        description:
+          type: string
+          example: "High-fidelity sound, noise-cancelling."
+        category:
+          type: string
+          example: "Electronics"
+        price:
+          type: number
+          example: 199.99
+        images:
+          type: array
+          items:
+            type: string
+            example: "base64encodedimage"
+        stock:
+          type: integer
+          example: 150
+    Image:
+      type: object
+      properties:
+        public_id:
+          type: string
+        url:
+          type: string
+    Variant:
+      type: object
+      properties:
+        size:
+          type: string
+        color:
+          type: string
+        colorCode:
+          type: string
+        colorImage:
+          $ref: '#/components/schemas/Image'
+        stock:
+          type: integer
+        available:
+          type: boolean
+    Review:
+      type: object
+      properties:
+        _id:
+          type: string
+          readOnly: true
+        user:
+          type: string
+        name:
+          type: string
+        rating:
+          type: number
+        comment:
+          type: string
+    Order:
+      type: object
       properties:
         shippingInfo:
           type: object
+          properties:
+            address: { type: string }
+            city: { type: string }
+            state: { type: string }
+            country: { type: string }
+            pinCode: { type: integer }
+            phoneNo: { type: number }
         orderItems:
           type: array
           items:
             type: object
+            properties:
+              name: { type: string }
+              price: { type: number }
+              quantity: { type: number }
+              image: { type: string }
+              product: { type: string }
         paymentInfo:
           type: object
-        itemPrice:
-          type: number
-        taxPrice:
-          type: number
-        shippingPrice:
-          type: number
-        totalPrice:
-          type: number
-        orderStatus:
+          properties:
+            id: { type: string }
+            status: { type: string }
+        itemPrice: { type: number }
+        taxPrice: { type: number }
+        shippingPrice: { type: number }
+        totalPrice: { type: number }
+        paidAt: { type: string, format: date-time }
+        user: { type: string }
+        orderStatus: { type: string }
+        deliveredAt: { type: string, format: date-time }
+    CartItem:
+      type: object
+      properties:
+        productId:
           type: string
-        paidAt:
+        quantity:
+          type: integer
+    Address:
+      type: object
+      properties:
+        _id:
           type: string
-        deliveredAt:
-          type: string
-        user:
-          type: string
-
-    Payment:
+          readOnly: true
+        street: { type: string }
+        city: { type: string }
+        state: { type: string }
+        country: { type: string }
+        postalCode: { type: string }
+        isDefault: { type: boolean }
+    AddressInput:
       type: object
       required:
-        - orderId
-        - amount
+        - street
+        - city
+        - state
+        - country
+        - postalCode
       properties:
-        orderId:
+        street:
           type: string
-        amount:
-          type: number
-        method:
+        city:
           type: string
-          example: "Razorpay"
-        status:
+        state:
           type: string
-          example: "Paid"
+        country:
+          type: string
+        postalCode:
+          type: string
+        isDefault:
+          type: boolean
+          default: false

@@ -1,6 +1,8 @@
 import handleAsyncError from "../middleware/handleAsyncError.js";
 import { instance } from "../server.js";
 import crypto from "crypto";
+
+//payment
 export const processPayment = handleAsyncError(async (req, res) => {
   const options = {
     amount: Number(req.body.amount * 100),

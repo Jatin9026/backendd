@@ -24,7 +24,7 @@ app.use(fileUpload());
 app.use(express.urlencoded({ extended: true }));
 
 // Swagger setup
-const swaggerDocument = YAML.load('./swagger.yaml'); // make sure swagger.yaml is in the root or adjust path
+const swaggerDocument = YAML.load('./swagger.yaml');
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Routes
 app.use("/api/v1", product);
