@@ -21,12 +21,27 @@ export const createProduct = handleAsyncError(async (req, res, next) => {
   }
   req.body.images = imageLinks;
   req.body.user = req.user.id;
-  // auto-calc discount & isOnSale
   if (req.body.salePrice && req.body.price) {
     req.body.discount = Math.round(
       ((req.body.price - req.body.salePrice) / req.body.price) * 100
     );
     req.body.isOnSale = req.body.salePrice < req.body.price;
+  }
+  if (req.body.colors && req.body.colors.length > 0) {
+    for (let i = 0; i < req.body.colors.length; i++) {
+      let colorImages = [];
+      if (typeof req.body.colors[i].images === "string") {
+        colorImages.push(req.body.colors[i].images);
+      } else {
+        colorImages = req.body.colors[i].images;
+      }
+      const colorImageLinks = [];
+      for (let j = 0; j < colorImages.length; j++) {
+        const result = await cloudinary.uploader.upload(colorImages[j], { folder: "products/colors" });
+        colorImageLinks.push({ public_id: result.public_id, url: result.secure_url });
+      }
+      req.body.colors[i].images = colorImageLinks;
+    }
   }
   const product = await Product.create(req.body);
   res.status(201).json({

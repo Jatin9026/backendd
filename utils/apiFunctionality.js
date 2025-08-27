@@ -3,7 +3,6 @@ class APIFunctionality{
         this.query=query,
         this.queryStr=queryStr
     }
-
     search(){
         const keyword=this.queryStr.keyword?{
             name:{
@@ -24,7 +23,6 @@ class APIFunctionality{
         return this
         
     }
-
     pagination(resultPerPage){
         const currentPage=Number(this.queryStr.page) ||1
         const skip=resultPerPage*(currentPage-1);

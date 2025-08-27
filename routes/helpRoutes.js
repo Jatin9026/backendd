@@ -1,4 +1,4 @@
-// routes/helpRoutes.js
+
 import express from "express";
 import { getFaqs, createTicket, getMyTickets, updateTicketStatus } from "../controller/helpController.js";
 import { verifyUserAuth, roleBasedAccess } from "../middleware/userAuth.js";
