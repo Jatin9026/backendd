@@ -16,8 +16,13 @@ import cors from 'cors';
 
 dotenv.config({ path: './config/config.env' });
 const app = express();
-// Middleware
-app.use(cors());
+
+app.use(cors({
+    origin: ["http://localhost:5000","http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }));  
 app.use(express.json());
 app.use(cookieParser());
 app.use(fileUpload());
@@ -25,11 +30,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Swagger setup
 const swaggerDocument = YAML.load('./swagger.yaml');
-// Set swagger server URL dynamically
-const serverUrl = process.env.NODE_ENV === 'production' 
-    ? process.env.PRODUCTION_URL 
-    : 'http://localhost:3000';
-swaggerDocument.servers[0].url = serverUrl;
+
+
+
+const serverHost =
+  process.env.NODE_ENV === 'production'
+    ? process.env.PRODUCTION_URL
+    : 'http://localhost:4000';  ;
+swaggerDocument.servers = [
+  { url: `${serverHost}/api/v1`, description: 'API Base' },
+];
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
