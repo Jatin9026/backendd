@@ -131,9 +131,7 @@ export const getUserDetails=handleAsyncError(async(req , res , next)=>{
     res.status(200).json({
         success:true,
         user
-    })
- 
-    
+    })  
 })
 
 //update password
@@ -203,8 +201,6 @@ export const getSingleUser=handleAsyncError(async(req,res,next)=>{
         success: true,
         user
     })
-
-    
 })
 
 //Admin- Changing user role
@@ -242,20 +238,15 @@ export const deleteUser=handleAsyncError(async(req,res,next)=>{
         message: "User Deleted Successfully"
     })
 })
-
-
 // Add Bookmark
 export const addBookmark = handleAsyncError(async (req, res, next) => {
     const { productId } = req.body;
     const user = await User.findById(req.user.id);
-  
     if (user.bookmarks.includes(productId)) {
       return next(new HandleError("Product already bookmarked", 400));
     }
-  
     user.bookmarks.push(productId);
     await user.save();
-  
     res.status(200).json({
       success: true,
       bookmarks: user.bookmarks
@@ -266,16 +257,13 @@ export const addBookmark = handleAsyncError(async (req, res, next) => {
 export const removeBookmark = handleAsyncError(async (req, res, next) => {
     const { productId } = req.params;
     const user = await User.findById(req.user.id);
-  
     user.bookmarks = user.bookmarks.filter(id => id.toString() !== productId);
     await user.save();
-  
     res.status(200).json({
       success: true,
       bookmarks: user.bookmarks
     });
   });
-  
 // Get Bookmarks
 export const getBookmarks = handleAsyncError(async (req, res, next) => {
     const user = await User.findById(req.user.id).populate("bookmarks");

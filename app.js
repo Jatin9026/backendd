@@ -12,10 +12,12 @@ import fileUpload from 'express-fileupload';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import cors from 'cors';
 
 dotenv.config({ path: './config/config.env' });
 const app = express();
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(fileUpload());
