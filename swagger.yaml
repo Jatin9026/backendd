@@ -4,8 +4,8 @@ info:
   version: 1.0.0
   description: Complete API documentation for an E-commerce backend.
 servers:
-  - url: http://localhost:3000/api/v1
-    description: Local server
+  - url: http://localhost:3000
+    description: API Server
 tags:
   - name: Products
     description: Endpoints for managing products.
@@ -54,7 +54,7 @@ paths:
             type: string
           description: Filter products by category.
       responses:
-        '200':
+        "200":
           description: List of products with pagination info.
           content:
             application/json:
@@ -67,7 +67,7 @@ paths:
                   products:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
                   productCount:
                     type: integer
                     example: 50
@@ -94,7 +94,7 @@ paths:
             example: "Electronics"
           description: The category name to filter by.
       responses:
-        '200':
+        "200":
           description: A list of products belonging to the specified category.
           content:
             application/json:
@@ -107,7 +107,7 @@ paths:
                   products:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
   /products/tag/{tag}:
     get:
       summary: Get products by tag
@@ -122,7 +122,7 @@ paths:
             example: "gadgets"
           description: The tag to filter by.
       responses:
-        '200':
+        "200":
           description: A list of products with the specified tag.
           content:
             application/json:
@@ -135,14 +135,14 @@ paths:
                   products:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
   /products/popular:
     get:
       summary: Get popular products
       tags:
         - Products
       responses:
-        '200':
+        "200":
           description: A list of popular products.
           content:
             application/json:
@@ -155,14 +155,14 @@ paths:
                   products:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
   /products/best-sellers:
     get:
       summary: Get best-selling products
       tags:
         - Products
       responses:
-        '200':
+        "200":
           description: A list of best-selling products.
           content:
             application/json:
@@ -175,14 +175,14 @@ paths:
                   products:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
   /products/flash-sale:
     get:
       summary: Get products currently on flash sale
       tags:
         - Products
       responses:
-        '200':
+        "200":
           description: A list of products on flash sale.
           content:
             application/json:
@@ -195,7 +195,7 @@ paths:
                   products:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
   /product/{id}:
     get:
       summary: Get a single product by ID
@@ -210,7 +210,7 @@ paths:
             example: "60c72b2f9b1d8c001f8e4b7b"
           description: The ID of the product.
       responses:
-        '200':
+        "200":
           description: Product found.
           content:
             application/json:
@@ -221,8 +221,8 @@ paths:
                     type: boolean
                     example: true
                   product:
-                    $ref: '#/components/schemas/Product'
-        '404':
+                    $ref: "#/components/schemas/Product"
+        "404":
           description: Product not found.
           content:
             application/json:
@@ -264,7 +264,7 @@ paths:
                   type: string
                   example: "60c72b2f9b1d8c001f8e4b7b"
       responses:
-        '200':
+        "200":
           description: Review created or updated successfully.
   /product/{id}/reviews:
     get:
@@ -280,7 +280,7 @@ paths:
             example: "60c72b2f9b1d8c001f8e4b7b"
           description: The ID of the product.
       responses:
-        '200':
+        "200":
           description: List of reviews for the product.
           content:
             application/json:
@@ -293,7 +293,7 @@ paths:
                   reviews:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Review'
+                      $ref: "#/components/schemas/Review"
   /product/{productId}/review/{reviewId}:
     delete:
       summary: Delete a review
@@ -315,7 +315,7 @@ paths:
             type: string
           description: The ID of the review to delete.
       responses:
-        '200':
+        "200":
           description: Review deleted successfully.
   # User Auth Routes
   /register:
@@ -328,9 +328,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegistration'
+              $ref: "#/components/schemas/UserRegistration"
       responses:
-        '201':
+        "201":
           description: User registered successfully.
           content:
             application/json:
@@ -343,7 +343,7 @@ paths:
                   token:
                     type: string
                   user:
-                    $ref: '#/components/schemas/User'
+                    $ref: "#/components/schemas/User"
   /login:
     post:
       summary: Log in a user
@@ -367,7 +367,7 @@ paths:
                   type: string
                   example: "password123"
       responses:
-        '200':
+        "200":
           description: User logged in successfully.
   /logout:
     post:
@@ -375,7 +375,7 @@ paths:
       tags:
         - Users
       responses:
-        '200':
+        "200":
           description: User logged out successfully.
   /password/forgot:
     post:
@@ -396,7 +396,7 @@ paths:
                   format: email
                   example: "john.doe@example.com"
       responses:
-        '200':
+        "200":
           description: Password reset email sent.
   /reset/{token}:
     post:
@@ -427,7 +427,7 @@ paths:
                   type: string
                   example: "newpassword123"
       responses:
-        '200':
+        "200":
           description: Password reset successfully.
   # User Profile & Account
   /profile:
@@ -438,7 +438,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User details retrieved.
           content:
             application/json:
@@ -449,7 +449,7 @@ paths:
                     type: boolean
                     example: true
                   user:
-                    $ref: '#/components/schemas/User'
+                    $ref: "#/components/schemas/User"
   /profile/update:
     put:
       summary: Update user profile
@@ -475,7 +475,7 @@ paths:
                   type: string
                   example: "base64encodedimage"
       responses:
-        '200':
+        "200":
           description: Profile updated successfully.
   /password/update:
     put:
@@ -505,7 +505,7 @@ paths:
                   type: string
                   example: "newpassword123"
       responses:
-        '200':
+        "200":
           description: Password updated successfully.
   # Cart & Wishlist
   /cart:
@@ -516,7 +516,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Cart retrieved.
           content:
             application/json:
@@ -529,7 +529,7 @@ paths:
                   cart:
                     type: array
                     items:
-                      $ref: '#/components/schemas/CartItem'
+                      $ref: "#/components/schemas/CartItem"
     post:
       summary: Add a product to the cart
       tags:
@@ -552,7 +552,7 @@ paths:
                   type: integer
                   example: 1
       responses:
-        '200':
+        "200":
           description: Product added to cart.
   /cart/{productId}:
     put:
@@ -581,7 +581,7 @@ paths:
                   type: integer
                   example: 3
       responses:
-        '200':
+        "200":
           description: Cart item quantity updated.
     delete:
       summary: Remove a product from the cart
@@ -597,7 +597,7 @@ paths:
             type: string
           description: The ID of the product to remove.
       responses:
-        '200':
+        "200":
           description: Product removed from cart.
   /account/wishlist:
     get:
@@ -607,7 +607,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Bookmarks retrieved.
           content:
             application/json:
@@ -620,7 +620,7 @@ paths:
                   bookmarks:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
     post:
       summary: Add a product to bookmarks
       tags:
@@ -640,7 +640,7 @@ paths:
                   type: string
                   example: "60c72b2f9b1d8c001f8e4b7b"
       responses:
-        '200':
+        "200":
           description: Product added to bookmarks.
   /account/wishlist/{productId}:
     delete:
@@ -657,7 +657,7 @@ paths:
             type: string
           description: The ID of the product to remove.
       responses:
-        '200':
+        "200":
           description: Product removed from bookmarks.
   # Order Routes
   /new/order:
@@ -672,9 +672,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              $ref: "#/components/schemas/Order"
       responses:
-        '201':
+        "201":
           description: Order created successfully.
   /order/{id}:
     get:
@@ -692,7 +692,7 @@ paths:
             example: "60c72b2f9b1d8c001f8e4b7c"
           description: The ID of the order.
       responses:
-        '200':
+        "200":
           description: Order details retrieved.
   /orders/user:
     get:
@@ -702,7 +702,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User's orders list.
   # Payment Routes
   /payment/process:
@@ -725,7 +725,7 @@ paths:
                   type: number
                   example: 50000
       responses:
-        '200':
+        "200":
           description: Payment order created.
   /getKey:
     get:
@@ -735,7 +735,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Razorpay API Key retrieved.
   /paymentVerification:
     post:
@@ -760,7 +760,7 @@ paths:
                 razorpay_signature:
                   type: string
       responses:
-        '200':
+        "200":
           description: Payment verification result.
   # Help & Support
   /faqs:
@@ -769,7 +769,7 @@ paths:
       tags:
         - Support & FAQs
       responses:
-        '200':
+        "200":
           description: A list of FAQs.
   /support/ticket:
     post:
@@ -795,7 +795,7 @@ paths:
                   type: string
                   example: "The item I received is damaged."
       responses:
-        '201':
+        "201":
           description: Ticket created successfully.
   /support/tickets:
     get:
@@ -805,7 +805,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: A list of support tickets.
   # Notifications
   /notifications:
@@ -816,7 +816,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: A list of notifications.
   /notifications/{id}/read:
     put:
@@ -833,7 +833,7 @@ paths:
             type: string
           description: The ID of the notification.
       responses:
-        '200':
+        "200":
           description: Notification marked as read.
   # Search
   /search:
@@ -856,7 +856,7 @@ paths:
                   type: string
                   example: "smartwatch"
       responses:
-        '201':
+        "201":
           description: Search query saved.
   /search/data:
     get:
@@ -866,7 +866,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Search data retrieved.
   # Account Addresses
   /account/addresses:
@@ -877,7 +877,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Addresses retrieved.
           content:
             application/json:
@@ -890,7 +890,7 @@ paths:
                   addresses:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Address'
+                      $ref: "#/components/schemas/Address"
     post:
       summary: Add a new address
       tags:
@@ -902,9 +902,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddressInput'
+              $ref: "#/components/schemas/AddressInput"
       responses:
-        '201':
+        "201":
           description: Address added successfully.
   /account/addresses/{id}:
     put:
@@ -925,9 +925,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddressInput'
+              $ref: "#/components/schemas/AddressInput"
       responses:
-        '200':
+        "200":
           description: Address updated successfully.
     delete:
       summary: Remove an address
@@ -943,7 +943,7 @@ paths:
             type: string
           description: The ID of the address to remove.
       responses:
-        '200':
+        "200":
           description: Address removed successfully.
   # Account Settings
   /personalization/preferences:
@@ -968,7 +968,7 @@ paths:
                     theme: "dark"
                     email_promotions: "true"
       responses:
-        '200':
+        "200":
           description: Preferences updated.
   /personalization/notifications:
     put:
@@ -990,7 +990,7 @@ paths:
                   type: boolean
                   example: true
       responses:
-        '200':
+        "200":
           description: Notifications setting updated.
   /settings/language:
     put:
@@ -1012,7 +1012,7 @@ paths:
                   type: string
                   example: "es"
       responses:
-        '200':
+        "200":
           description: Language updated.
   /settings/location:
     put:
@@ -1034,7 +1034,7 @@ paths:
                   type: string
                   example: "New York, NY"
       responses:
-        '200':
+        "200":
           description: Location updated.
   # Admin Routes
   /admin/products:
@@ -1045,7 +1045,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Admin products list.
   /admin/product:
     post:
@@ -1059,9 +1059,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductInput'
+              $ref: "#/components/schemas/ProductInput"
       responses:
-        '201':
+        "201":
           description: Product created successfully.
   /admin/product/{id}:
     put:
@@ -1082,9 +1082,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductInput'
+              $ref: "#/components/schemas/ProductInput"
       responses:
-        '200':
+        "200":
           description: Product updated.
     delete:
       summary: Delete a product (Admin)
@@ -1100,7 +1100,7 @@ paths:
             type: string
           description: The ID of the product.
       responses:
-        '200':
+        "200":
           description: Product deleted successfully.
   /admin/product/{id}/sale:
     put:
@@ -1127,7 +1127,7 @@ paths:
                   type: number
                   example: 899
       responses:
-        '200':
+        "200":
           description: Sale status toggled.
   /admin/order/{id}:
     put:
@@ -1157,7 +1157,7 @@ paths:
                   enum: [Processing, Shipped, Delivered]
                   example: "Delivered"
       responses:
-        '200':
+        "200":
           description: Order status updated successfully.
     delete:
       summary: Delete an order (Admin)
@@ -1173,7 +1173,7 @@ paths:
             type: string
           description: The ID of the order.
       responses:
-        '200':
+        "200":
           description: Order deleted successfully.
   /admin/orders:
     get:
@@ -1183,7 +1183,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: All orders list.
   /admin/users:
     get:
@@ -1193,7 +1193,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: List of all users.
   /admin/user/{id}:
     get:
@@ -1210,7 +1210,7 @@ paths:
             type: string
           description: The ID of the user.
       responses:
-        '200':
+        "200":
           description: User details retrieved.
     put:
       summary: Update a user's role (Admin)
@@ -1239,7 +1239,7 @@ paths:
                   enum: [user, admin]
                   example: "admin"
       responses:
-        '200':
+        "200":
           description: User role updated.
     delete:
       summary: Delete a user (Admin)
@@ -1255,7 +1255,7 @@ paths:
             type: string
           description: The ID of the user.
       responses:
-        '200':
+        "200":
           description: User deleted successfully.
   /admin/support/ticket/{id}:
     put:
@@ -1285,7 +1285,7 @@ paths:
                   enum: [open, in-progress, resolved]
                   example: "resolved"
       responses:
-        '200':
+        "200":
           description: Ticket status updated.
   /admin/notification:
     post:
@@ -1316,7 +1316,7 @@ paths:
                   type: string
                   example: "Get 50% off on all electronics today only!"
       responses:
-        '201':
+        "201":
           description: Notification created.
 components:
   securitySchemes:
@@ -1412,7 +1412,7 @@ components:
         images:
           type: array
           items:
-            $ref: '#/components/schemas/Image'
+            $ref: "#/components/schemas/Image"
         stock:
           type: integer
         tags:
@@ -1426,13 +1426,13 @@ components:
         reviews:
           type: array
           items:
-            $ref: '#/components/schemas/Review'
+            $ref: "#/components/schemas/Review"
         user:
           type: string
         variants:
           type: array
           items:
-            $ref: '#/components/schemas/Variant'
+            $ref: "#/components/schemas/Variant"
     ProductInput:
       type: object
       properties:
@@ -1473,7 +1473,7 @@ components:
         colorCode:
           type: string
         colorImage:
-          $ref: '#/components/schemas/Image'
+          $ref: "#/components/schemas/Image"
         stock:
           type: integer
         available:

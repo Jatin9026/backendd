@@ -25,7 +25,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Swagger setup
 const swaggerDocument = YAML.load('./swagger.yaml');
+// Set swagger server URL dynamically
+const serverUrl = process.env.NODE_ENV === 'production' 
+    ? process.env.PRODUCTION_URL 
+    : 'http://localhost:3000';
+swaggerDocument.servers[0].url = serverUrl;
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Routes
 app.use("/api/v1", product);
 app.use("/api/v1", user);
