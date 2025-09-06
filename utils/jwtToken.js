@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 export const sendToken=(user,statusCode,res)=>{
     const token=user.getJWTToken();
     const options={

@@ -30,17 +30,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Swagger setup
 const swaggerDocument = YAML.load('./swagger.yaml');
+if (process.env.NODE_ENV === 'production') {
+    swaggerDocument.servers = [
+      { url: `${process.env.PRODUCTION_URL}/api/v1`, description: 'Production (HTTPS)' },
+    ];
+  } else {
+    swaggerDocument.servers = [
+      { url: 'http://localhost:4000/api/v1', description: 'Local (HTTP)' },
+    ];
+  }
 
-
-
-const serverHost =
-  process.env.NODE_ENV === 'production'
-    ? process.env.PRODUCTION_URL
-    : 'http://localhost:4000';  ;
-swaggerDocument.servers = [
-  { url: `${serverHost}/api/v1`, description: 'API Base' },
-];
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 app.use("/api/v1", product);
