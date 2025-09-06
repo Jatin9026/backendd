@@ -33,7 +33,7 @@ app.use(cors());
 const swaggerDocument = YAML.load('./swagger.yaml');
 
 app.use(
-    "/api-docs",
+    "/docs",
     swaggerUi.serve,
     swaggerUi.setup(swaggerDocument, {
       explorer: true,
