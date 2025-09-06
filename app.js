@@ -18,7 +18,7 @@ dotenv.config({ path: './config/config.env' });
 const app = express();
 
 app.use(cors({
-    origin: ["http://localhost:5000","http://localhost:3000"],
+    origin: ["http://localhost:4000","http://localhost:3000","http://localhost:8000","http://localhost:5000"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -27,18 +27,21 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(fileUpload());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // Swagger setup
 const swaggerDocument = YAML.load('./swagger.yaml');
-if (process.env.NODE_ENV === 'production') {
-    swaggerDocument.servers = [
-      { url: `${process.env.PRODUCTION_URL}/api/v1`, description: 'Production (HTTPS)' },
-    ];
-  } else {
-    swaggerDocument.servers = [
-      { url: 'http://localhost:4000/api/v1', description: 'Local (HTTP)' },
-    ];
-  }
+
+app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument, {
+      explorer: true,
+      swaggerOptions: {
+        persistAuthorization: true,  
+      },
+    })
+  );
 
 
 // Routes

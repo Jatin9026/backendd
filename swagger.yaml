@@ -6,6 +6,21 @@ info:
 servers:
   - url: http://localhost:4000/api/v1
     description: API Server
+
+components:
+  securitySchemes:
+    bearerAuth:            # JWT for Authorization header
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:            # If you’re using cookies
+      type: apiKey
+      in: cookie
+      name: token          # cookie ka naam jo tu set kar raha hai backend me
+
+security:
+  - bearerAuth: []         # apply globally
+  # - cookieAuth: []       # uncomment if you want cookie-based auth
 tags:
   - name: Products
     description: Endpoints for managing products.
