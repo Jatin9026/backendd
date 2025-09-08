@@ -17,6 +17,110 @@ components:
       type: apiKey
       in: cookie
       name: token          # cookie ka naam jo tu set kar raha hai backend me
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique identifier for the product.
+          example: "60c72b2f9b1d8c001f8e4b7b"
+        name:
+          type: string
+          description: Name of the product.
+          example: "Wireless Bluetooth Headphones"
+        description:
+          type: string
+          description: A detailed description of the product.
+          example: "High-quality wireless headphones with noise cancellation and a long battery life."
+        price:
+          type: number
+          format: float
+          description: The price of the product.
+          example: 99.99
+        images:
+          type: array
+          description: URLs for product images.
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+                format: uri
+                example: "https://example.com/images/product-1.jpg"
+              _id:
+                type: string
+                example: "60c72b2f9b1d8c001f8e4b7c"
+        category:
+          type: string
+          description: The category the product belongs to.
+          example: "Electronics"
+        stock:
+          type: integer
+          description: The number of items in stock.
+          example: 15
+        ratings:
+          type: number
+          format: float
+          description: The average rating of the product.
+          example: 4.7
+        numOfReviews:
+          type: integer
+          description: The total number of reviews.
+          example: 35
+    
+    ProductInput:
+      type: object
+      required:
+        - name
+        - description
+        - price
+        - category
+      properties:
+        name:
+          type: string
+          example: "New Product Title"
+        description:
+          type: string
+          example: "A brief description of the new product."
+        price:
+          type: number
+          format: float
+          example: 125.50
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/images/new-product.jpg"
+        category:
+          type: string
+          example: "Home & Garden"
+        stock:
+          type: integer
+          example: 100
+    
+    Review: # Already referenced in your existing YAML
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            _id:
+              type: string
+              example: "60c72b2f9b1d8c001f8e4b7e"
+            name:
+              type: string
+              example: "John Doe"
+        rating:
+          type: number
+          example: 5
+        comment:
+          type: string
+          example: "Excellent product!"
+        _id:
+          type: string
+          example: "60c72b2f9b1d8c001f8e4b7f"
 
 security:
   - bearerAuth: []         # apply globally

@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(fileUpload());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
 
 // Swagger setup
 const swaggerDocument = YAML.load('./swagger.yaml');

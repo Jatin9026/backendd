@@ -158,9 +158,9 @@ export const updateProfile=handleAsyncError(async(req,res,next)=>{
         email
     }
     if(avatar!==""){
-        const user=await User.findById(req.user.id);
-        const imageId=user.avatar.public_id
-        await cloudinary.uploader.destroy(imageId)
+      const foundUser=await User.findById(req.user.id); 
+      const imageId=foundUser.avatar.public_id
+      await cloudinary.uploader.destroy(imageId)
         const myCloud=await cloudinary.uploader.upload(avatar,{
             folder:'avatars',
         width:150,
