@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   description: { type: String, required: true },
@@ -11,7 +12,6 @@ const productSchema = new mongoose.Schema({
   isBestSeller: { type: Boolean, default: false },
   isFlashSale: { type: Boolean, default: false },
   flashSaleEnd: { type: Date, default: null },
-
   images: [
     {
       public_id: { type: String, required: true },
@@ -19,10 +19,11 @@ const productSchema = new mongoose.Schema({
     }
   ],
   stock: { type: Number, required: true, default: 1, maxLength: 5 },
+  maxOrderQuantity: { type: Number, required: true, default: 10, maxLength: 5 },
+  isOutOfStock: { type: Boolean, default: false },
   tags: [{ type: String, trim: true }],
   ratings: { type: Number, default: 0 },
   numOfReviews: { type: Number, default: 0 },
-
   reviews: [
     {
       user: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
@@ -31,9 +32,7 @@ const productSchema = new mongoose.Schema({
       comment: { type: String, required: true },
     }
   ],
-
   user: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
-
   variants: [
     {
       size: { type: String },
@@ -47,7 +46,6 @@ const productSchema = new mongoose.Schema({
       available: { type: Boolean, default: true },
     }
   ],
-
   createdAt: { type: Date, default: Date.now }
 });
 
