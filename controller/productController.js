@@ -258,6 +258,11 @@ export const getProductsByTag = handleAsyncError(async (req, res, next) => {
   res.status(200).json({ success: true, products });
 });
 
+export const getProductsByBrand = handleAsyncError(async (req, res, next) => {
+  const products = await Product.find({ brand: req.params.brand });
+  res.status(200).json({ success: true, products });
+});
+
 //get popular product
 export const getPopularProducts = handleAsyncError(async (req, res, next) => {
   const products = await Product.find({ isPopular: true }).limit(10);

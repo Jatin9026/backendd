@@ -12,6 +12,7 @@ import {
   toggleSaleStatus,
   getProductsByCategory,
   getProductsByTag,
+  getProductsByBrand,
   getPopularProducts,
   getBestSellers,
   getFlashSaleProducts,
@@ -28,6 +29,9 @@ router.route("/products/category/:category").get(getProductsByCategory);
 
 // Get products by tag
 router.route("/products/tag/:tag").get(getProductsByTag);
+
+// Get products by brand
+router.route("/products/brand/:brand").get(getProductsByBrand);
 
 // Get a single product by ID
 router.route("/product/:id").get(getSingleProduct);

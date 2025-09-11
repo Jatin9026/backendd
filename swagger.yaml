@@ -33,6 +33,10 @@ components:
           type: string
           description: A detailed description of the product.
           example: "High-quality wireless headphones with noise cancellation and a long battery life."
+        brand:
+          type: string
+          description: Brand name of the product.
+          example: "Sony"
         price:
           type: number
           format: float
@@ -76,6 +80,7 @@ components:
         - description
         - price
         - category
+        - brand
       properties:
         name:
           type: string
@@ -83,6 +88,9 @@ components:
         description:
           type: string
           example: "A brief description of the new product."
+        brand:
+          type: string
+          example: "Apple"
         price:
           type: number
           format: float
@@ -243,6 +251,34 @@ paths:
       responses:
         "200":
           description: A list of products with the specified tag.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+  /products/brand/{brand}:
+    get:
+      summary: Get products by brand
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: brand
+          required: true
+          schema:
+            type: string
+            example: "Apple"
+          description: The brand name to filter by.
+      responses:
+        "200":
+          description: A list of products from the specified brand.
           content:
             application/json:
               schema:
@@ -1511,6 +1547,8 @@ components:
           type: string
         category:
           type: string
+        brand:
+          type: string
         price:
           type: number
         salePrice:
@@ -1564,6 +1602,9 @@ components:
         category:
           type: string
           example: "Electronics"
+        brand:
+          type: string
+          example: "Bose"
         price:
           type: number
           example: 199.99
