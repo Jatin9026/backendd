@@ -15,8 +15,8 @@ const productSchema = new mongoose.Schema({
   flashSaleEnd: { type: Date, default: null },
   images: [
     {
-      public_id: { type: String, required: true },
-      url: { type: String, required: true }
+      public_id: { type: String, required: false },
+      url: { type: String, required: false }
     }
   ],
   stock: { type: Number, required: true, default: 1, maxLength: 5 },

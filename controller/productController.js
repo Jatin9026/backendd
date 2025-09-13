@@ -7,26 +7,48 @@ import { v2 as cloudinary } from "cloudinary";
 //create product
 export const createProduct = handleAsyncError(async (req, res, next) => {
   let images = [];
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else {
-    images = req.body.images;
+  
+  // Check if images exist in request body
+  if (req.body.images) {
+    if (typeof req.body.images === "string") {
+      images.push(req.body.images);
+    } else if (Array.isArray(req.body.images)) {
+      images = req.body.images;
+    }
   }
+  
   const imageLinks = [];
-  for (let i = 0; i < images.length; i++) {
-    const result = await cloudinary.uploader.upload(images[i], {
-      folder: "products",
-    });
-    imageLinks.push({ public_id: result.public_id, url: result.secure_url });
+  
+  // Only process images if they exist and are valid
+  if (images.length > 0) {
+    for (let i = 0; i < images.length; i++) {
+      try {
+        // Check if it's a base64 string or valid URL
+        if (images[i].startsWith('data:image') || images[i].startsWith('http')) {
+          const result = await cloudinary.uploader.upload(images[i], {
+            folder: "products",
+          });
+          imageLinks.push({ public_id: result.public_id, url: result.secure_url });
+        } else {
+          console.log(`Skipping invalid image: ${images[i]}`);
+        }
+      } catch (error) {
+        console.error(`Error uploading image ${i + 1}:`, error.message);
+        // Continue without this image instead of failing the entire request
+      }
+    }
   }
+  
   req.body.images = imageLinks;
   req.body.user = req.user.id;
+  
   if (req.body.salePrice && req.body.price) {
     req.body.discount = Math.round(
       ((req.body.price - req.body.salePrice) / req.body.price) * 100
     );
     req.body.isOnSale = req.body.salePrice < req.body.price;
   }
+  
   if (req.body.colors && req.body.colors.length > 0) {
     for (let i = 0; i < req.body.colors.length; i++) {
       let colorImages = [];
@@ -43,10 +65,12 @@ export const createProduct = handleAsyncError(async (req, res, next) => {
       req.body.colors[i].images = colorImageLinks;
     }
   }
+  
   const product = await Product.create(req.body);
   res.status(201).json({
     success: true,
     product,
+    message: imageLinks.length === 0 ? "Product created without images" : "Product created successfully"
   });
 });
 
