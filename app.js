@@ -17,7 +17,7 @@ import cors from 'cors';
 dotenv.config({ path: './config/config.env' });
 const app = express();
 
-const allowedOrigins = ["http://localhost:4000", "http://localhost:3000", "http://localhost:8000", "http://localhost:5000"];
+const allowedOrigins = ["http://localhost:4000", "http://localhost:3000", "http://localhost:8000", "http://localhost:5000", "https://mern-backend-t3h8.onrender.com"];
 app.use(cors({
     origin: (origin, callback) => {
         // allow requests with no origin (like mobile apps or curl requests)
