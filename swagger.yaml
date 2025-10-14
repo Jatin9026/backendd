@@ -4,135 +4,285 @@ info:
   version: 1.0.0
   description: Complete API documentation for an E-commerce backend.
 servers:
-  - url: http://localhost:4000/api/v1
+  # Using a relative path is the most robust way to avoid CORS issues in Swagger UI.
+  - url: /api/v1 
     description: API Server
 
+# FIX: This is the single, unified 'components' block. 
+# All schemas and security definitions are now correctly placed under it.
 components:
   securitySchemes:
-    bearerAuth:            # JWT for Authorization header
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-    cookieAuth:            # If you’re using cookies
+    cookieAuth:
       type: apiKey
       in: cookie
-      name: token          # cookie ka naam jo tu set kar raha hai backend me
+      name: token
   schemas:
+    # All your data models are defined here as schemas.
     Product:
       type: object
       properties:
         _id:
           type: string
-          description: Unique identifier for the product.
-          example: "60c72b2f9b1d8c001f8e4b7b"
+          readOnly: true
         name:
           type: string
-          description: Name of the product.
-          example: "Wireless Bluetooth Headphones"
         description:
           type: string
-          description: A detailed description of the product.
-          example: "High-quality wireless headphones with noise cancellation and a long battery life."
-        brand:
-          type: string
-          description: Brand name of the product.
-          example: "Sony"
-        price:
-          type: number
-          format: float
-          description: The price of the product.
-          example: 99.99
-        images:
-          type: array
-          description: URLs for product images.
-          items:
-            type: object
-            properties:
-              url:
-                type: string
-                format: uri
-                example: "https://example.com/images/product-1.jpg"
-              _id:
-                type: string
-                example: "60c72b2f9b1d8c001f8e4b7c"
         category:
           type: string
-          description: The category the product belongs to.
-          example: "Electronics"
+        brand:
+          type: string
+        price:
+          type: number
+        salePrice:
+          type: number
+        discount:
+          type: number
+        isOnSale:
+          type: boolean
+        isPopular:
+          type: boolean
+        isBestSeller:
+          type: boolean
+        isFlashSale:
+          type: boolean
+        flashSaleEnd:
+          type: string
+          format: date-time
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/Image"
         stock:
           type: integer
-          description: The number of items in stock.
-          example: 15
+        tags:
+          type: array
+          items:
+            type: string
         ratings:
           type: number
-          format: float
-          description: The average rating of the product.
-          example: 4.7
         numOfReviews:
           type: integer
-          description: The total number of reviews.
-          example: 35
-    
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+        user:
+          type: string
+        variants:
+          type: array
+          items:
+            $ref: "#/components/schemas/Variant"
+            
     ProductInput:
       type: object
-      required:
-        - name
-        - description
-        - price
-        - category
-        - brand
       properties:
         name:
           type: string
-          example: "New Product Title"
+          example: "Wireless Headphones"
         description:
           type: string
-          example: "A brief description of the new product."
+          example: "High-fidelity sound, noise-cancelling."
+        category:
+          type: string
+          example: "Electronics"
         brand:
           type: string
-          example: "Apple"
+          example: "Bose"
         price:
           type: number
-          format: float
-          example: 125.50
+          example: 199.99
         images:
           type: array
           items:
             type: string
-            format: uri
-            example: "https://example.com/images/new-product.jpg"
-        category:
-          type: string
-          example: "Home & Garden"
+            example: "base64encodedimage"
         stock:
           type: integer
-          example: 100
-    
-    Review: # Already referenced in your existing YAML
+          example: 150
+
+    User:
       type: object
       properties:
-        user:
-          type: object
-          properties:
-            _id:
-              type: string
-              example: "60c72b2f9b1d8c001f8e4b7e"
-            name:
-              type: string
-              example: "John Doe"
-        rating:
-          type: number
-          example: 5
-        comment:
-          type: string
-          example: "Excellent product!"
         _id:
           type: string
-          example: "60c72b2f9b1d8c001f8e4b7f"
+          readOnly: true
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: object
+          properties:
+            public_id:
+              type: string
+            url:
+              type: string
+        role:
+          type: string
+          enum: [user, admin]
+        walletBalance:
+          type: number
+        preferences:
+          type: object
+          additionalProperties:
+            type: string
+        language:
+          type: string
+        location:
+          type: string
+        notificationsEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+          
+    UserRegistration:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        password:
+          type: string
+          example: "password123"
+        avatar:
+          type: string
+          example: "base64encodedimage"
+          
+    Image:
+      type: object
+      properties:
+        public_id:
+          type: string
+        url:
+          type: string
+          
+    Variant:
+      type: object
+      properties:
+        size:
+          type: string
+        color:
+          type: string
+        colorCode:
+          type: string
+        colorImage:
+          $ref: "#/components/schemas/Image"
+        stock:
+          type: integer
+        available:
+          type: boolean
+          
+    Review:
+      type: object
+      properties:
+        _id:
+          type: string
+          readOnly: true
+        user:
+          type: string
+        name:
+          type: string
+        rating:
+          type: number
+        comment:
+          type: string
+          
+    Order:
+      type: object
+      properties:
+        shippingInfo:
+          type: object
+          properties:
+            address: { type: string }
+            city: { type: string }
+            state: { type: string }
+            country: { type: string }
+            pinCode: { type: integer }
+            phoneNo: { type: number }
+        orderItems:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              price: { type: number }
+              quantity: { type: number }
+              image: { type: string }
+              product: { type: string }
+        paymentInfo:
+          type: object
+          properties:
+            id: { type: string }
+            status: { type: string }
+        itemPrice: { type: number }
+        taxPrice: { type: number }
+        shippingPrice: { type: number }
+        totalPrice: { type: number }
+        paidAt: { type: string, format: date-time }
+        user: { type: string }
+        orderStatus: { type: string }
+        deliveredAt: { type: string, format: date-time }
+        
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+          
+    Address:
+      type: object
+      properties:
+        _id:
+          type: string
+          readOnly: true
+        street: { type: string }
+        city: { type: string }
+        state: { type: string }
+        country: { type: string }
+        postalCode: { type: string }
+        isDefault: { type: boolean }
+        
+    AddressInput:
+      type: object
+      required:
+        - street
+        - city
+        - state
+        - country
+        - postalCode
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        postalCode:
+          type: string
+        isDefault:
+          type: boolean
+          default: false
 
 security:
-  - bearerAuth: []         # apply globally
-  # - cookieAuth: []       # uncomment if you want cookie-based auth
+  - bearerAuth: []
 tags:
   - name: Products
     description: Endpoints for managing products.
@@ -156,6 +306,7 @@ tags:
     description: Endpoints for managing shopping cart and bookmarks (wishlist).
   - name: Settings
     description: Endpoints for user settings.
+
 paths:
   # General Product Routes
   /products:
@@ -1473,258 +1624,4 @@ paths:
       responses:
         "201":
           description: Notification created.
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
-    User:
-      type: object
-      properties:
-        _id:
-          type: string
-          readOnly: true
-        name:
-          type: string
-        email:
-          type: string
-        avatar:
-          type: object
-          properties:
-            public_id:
-              type: string
-            url:
-              type: string
-        role:
-          type: string
-          enum: [user, admin]
-        walletBalance:
-          type: number
-        preferences:
-          type: object
-          additionalProperties:
-            type: string
-        language:
-          type: string
-        location:
-          type: string
-        notificationsEnabled:
-          type: boolean
-        createdAt:
-          type: string
-          format: date-time
-    UserRegistration:
-      type: object
-      required:
-        - name
-        - email
-        - password
-      properties:
-        name:
-          type: string
-          example: "John Doe"
-        email:
-          type: string
-          format: email
-          example: "john.doe@example.com"
-        password:
-          type: string
-          example: "password123"
-        avatar:
-          type: string
-          example: "base64encodedimage"
-    Product:
-      type: object
-      properties:
-        _id:
-          type: string
-          readOnly: true
-        name:
-          type: string
-        description:
-          type: string
-        category:
-          type: string
-        brand:
-          type: string
-        price:
-          type: number
-        salePrice:
-          type: number
-        discount:
-          type: number
-        isOnSale:
-          type: boolean
-        isPopular:
-          type: boolean
-        isBestSeller:
-          type: boolean
-        isFlashSale:
-          type: boolean
-        flashSaleEnd:
-          type: string
-          format: date-time
-        images:
-          type: array
-          items:
-            $ref: "#/components/schemas/Image"
-        stock:
-          type: integer
-        tags:
-          type: array
-          items:
-            type: string
-        ratings:
-          type: number
-        numOfReviews:
-          type: integer
-        reviews:
-          type: array
-          items:
-            $ref: "#/components/schemas/Review"
-        user:
-          type: string
-        variants:
-          type: array
-          items:
-            $ref: "#/components/schemas/Variant"
-    ProductInput:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "Wireless Headphones"
-        description:
-          type: string
-          example: "High-fidelity sound, noise-cancelling."
-        category:
-          type: string
-          example: "Electronics"
-        brand:
-          type: string
-          example: "Bose"
-        price:
-          type: number
-          example: 199.99
-        images:
-          type: array
-          items:
-            type: string
-            example: "base64encodedimage"
-        stock:
-          type: integer
-          example: 150
-    Image:
-      type: object
-      properties:
-        public_id:
-          type: string
-        url:
-          type: string
-    Variant:
-      type: object
-      properties:
-        size:
-          type: string
-        color:
-          type: string
-        colorCode:
-          type: string
-        colorImage:
-          $ref: "#/components/schemas/Image"
-        stock:
-          type: integer
-        available:
-          type: boolean
-    Review:
-      type: object
-      properties:
-        _id:
-          type: string
-          readOnly: true
-        user:
-          type: string
-        name:
-          type: string
-        rating:
-          type: number
-        comment:
-          type: string
-    Order:
-      type: object
-      properties:
-        shippingInfo:
-          type: object
-          properties:
-            address: { type: string }
-            city: { type: string }
-            state: { type: string }
-            country: { type: string }
-            pinCode: { type: integer }
-            phoneNo: { type: number }
-        orderItems:
-          type: array
-          items:
-            type: object
-            properties:
-              name: { type: string }
-              price: { type: number }
-              quantity: { type: number }
-              image: { type: string }
-              product: { type: string }
-        paymentInfo:
-          type: object
-          properties:
-            id: { type: string }
-            status: { type: string }
-        itemPrice: { type: number }
-        taxPrice: { type: number }
-        shippingPrice: { type: number }
-        totalPrice: { type: number }
-        paidAt: { type: string, format: date-time }
-        user: { type: string }
-        orderStatus: { type: string }
-        deliveredAt: { type: string, format: date-time }
-    CartItem:
-      type: object
-      properties:
-        productId:
-          type: string
-        quantity:
-          type: integer
-    Address:
-      type: object
-      properties:
-        _id:
-          type: string
-          readOnly: true
-        street: { type: string }
-        city: { type: string }
-        state: { type: string }
-        country: { type: string }
-        postalCode: { type: string }
-        isDefault: { type: boolean }
-    AddressInput:
-      type: object
-      required:
-        - street
-        - city
-        - state
-        - country
-        - postalCode
-      properties:
-        street:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        country:
-          type: string
-        postalCode:
-          type: string
-        isDefault:
-          type: boolean
-          default: false
+
