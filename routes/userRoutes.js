@@ -44,7 +44,7 @@ router.delete("/account/addresses/:id", verifyUserAuth, removeAddress);
 //cart 
 router.get("/cart", verifyUserAuth, getCart);
 router.post("/cart", verifyUserAuth, addToCart);
-router.put("cart/:productId", verifyUserAuth, updateCartItem);
+router.put("/cart/:productId", verifyUserAuth, updateCartItem);
 router.delete("/cart/:productId", verifyUserAuth, removeFromCart);
 // Personalization Section
 router.put("/personalization/preferences", verifyUserAuth, updatePreferences);
