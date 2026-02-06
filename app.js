@@ -17,10 +17,10 @@ import cors from 'cors';
 dotenv.config({ path: './config/config.env' });
 const app = express();
 
-const allowedOrigins = ["http://localhost:4000", "http://localhost:3000", "http://localhost:8000", "http://localhost:5000", "https://mern-backend-t3h8.onrender.com","https://backend-a7o8.onrender.com"];
+const allowedOrigins = ["http://localhost:4000", "http://localhost:3000", "http://localhost:8000", "http://localhost:5000", "https://mern-backend-t3h8.onrender.com","https://backendd-ankp.onrender.com/"];
 app.use(cors({
     origin: (origin, callback) => {
-        // allow requests with no origin (like mobile apps or curl requests)
+
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
