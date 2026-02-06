@@ -20,6 +20,10 @@ export const verifyUserAuth = handleAsyncError(async (req, res, next) => {
     return next(new HandleError('Authentication is missing! Please login to access resource', 401));
   }
 
+  if (!process.env.JWT_SECRET_KEY) {
+    return next(new HandleError('Server configuration error: JWT secret not set', 500));
+  }
+
   try {
     const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.user = await User.findById(decodedData.id);
@@ -28,7 +32,13 @@ export const verifyUserAuth = handleAsyncError(async (req, res, next) => {
     }
     next();
   } catch (error) {
-    return next(new HandleError('Invalid token', 401));
+    if (error.name === 'TokenExpiredError') {
+      return next(new HandleError('Token has expired, please login again', 401));
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return next(new HandleError('Invalid token, please login again', 401));
+    }
+    return next(new HandleError('Authentication failed', 401));
   }
 });
 

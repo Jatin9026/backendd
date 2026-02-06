@@ -18,11 +18,15 @@ export const registerUser = handleAsyncError(async (req, res, next) => {
     }
     let myCloud;
     if (avatar) {
-        myCloud = await cloudinary.uploader.upload(avatar, {
-            folder: "avatars",
-            width: 150,
-            crop: "scale"
-        });
+        try {
+            myCloud = await cloudinary.uploader.upload(avatar, {
+                folder: "avatars",
+                width: 150,
+                crop: "scale"
+            });
+        } catch (error) {
+            return next(new HandleError(`Image upload failed: ${error.message}`, 500));
+        }
     }
     const user = await User.create({
         name,
@@ -158,17 +162,22 @@ export const updateProfile=handleAsyncError(async(req,res,next)=>{
         email
     }
     if(avatar!==""){
-      const foundUser=await User.findById(req.user.id); 
-      const imageId=foundUser.avatar.public_id
-      await cloudinary.uploader.destroy(imageId)
-        const myCloud=await cloudinary.uploader.upload(avatar,{
-            folder:'avatars',
-        width:150,
-        crop:'scale'
-        })
-        updateUserDetails.avatar={
-            public_id:myCloud.public_id,
-            url:myCloud.secure_url,
+        try {
+            const foundUser=await User.findById(req.user.id); 
+            if(foundUser.avatar && foundUser.avatar.public_id) {
+                await cloudinary.uploader.destroy(foundUser.avatar.public_id);
+            }
+            const myCloud=await cloudinary.uploader.upload(avatar,{
+                folder:'avatars',
+                width:150,
+                crop:'scale'
+            })
+            updateUserDetails.avatar={
+                public_id:myCloud.public_id,
+                url:myCloud.secure_url,
+            }
+        } catch (error) {
+            return next(new HandleError(`Image upload failed: ${error.message}`, 500));
         }
     }
     const user=await User.findByIdAndUpdate(req.user.id,updateUserDetails,{
@@ -230,8 +239,13 @@ export const deleteUser=handleAsyncError(async(req,res,next)=>{
    if(!user){
     return next(new HandleError("User doesn't exist",400))
    }
-   const imageId=user.avatar.public_id;
-   await cloudinary.uploader.destroy(imageId)
+   try {
+       if(user.avatar && user.avatar.public_id) {
+           await cloudinary.uploader.destroy(user.avatar.public_id);
+       }
+   } catch (error) {
+       console.error("Failed to delete avatar from cloudinary:", error.message);
+   }
     await User.findByIdAndDelete(req.params.id);
     res.status(200).json({
         success:true,
