@@ -17,27 +17,21 @@ import cors from 'cors';
 dotenv.config({ path: './config/config.env' });
 const app = express();
 
-const allowedOrigins = ["http://localhost:4000", "http://localhost:3000", "http://localhost:8000", "http://localhost:5000", "https://mern-backend-t3h8.onrender.com","https://backendd-ankp.onrender.com/"];
+// CORS Configuration
 app.use(cors({
-    origin: (origin, callback) => {
-
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-app.use(express.json());
+// Handle preflight requests
+app.options('*', cors());
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(fileUpload());
-app.use(express.urlencoded({ extended: true }));
-
 
 // Swagger setup
 const swaggerDocument = YAML.load('./swagger.yaml');
@@ -65,7 +59,6 @@ app.use(
   })
 );
 
-
 // Routes
 app.use("/api/v1", product);
 app.use("/api/v1", user);
@@ -82,6 +75,5 @@ app.get("/", (req, res) => {
 
 // Error middleware
 app.use(errorHandleMiddleware);
-
 
 export default app;
