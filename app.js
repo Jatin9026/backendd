@@ -39,14 +39,47 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 const swaggerServerUrl = process.env.SWAGGER_BASE_URL || (swaggerDocument.servers && swaggerDocument.servers[0] && swaggerDocument.servers[0].url) || '/api/v1';
 swaggerDocument.servers = [{ url: swaggerServerUrl, description: 'API Server' }];
 
+// // Add GitHub info to swagger document
+// swaggerDocument.info = {
+//   ...swaggerDocument.info,
+//   description: `${swaggerDocument.info?.description || 'API Documentation'}\n\n[![GitHub](https://img.shields.io/badge/GitHub-View%20Source-black?logo=github)](https://github.com/Jatin9026/backendd)`,
+//   contact: {
+//     ...swaggerDocument.info?.contact,
+//     name: 'GitHub Repository',
+//     url: 'https://github.com/Jatin9026/backendd'
+//   }
+// };
+
 app.use(
   "/docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, {
     explorer: true,
+    // customSiteTitle: "Backend API Documentation",
+    // customCss: `
+    //   .swagger-ui .topbar { display: none }
+    //   .swagger-ui .info .info__extdocs {
+    //     margin-top: 20px;
+    //   }
+    //   .github-link {
+    //     display: inline-flex;
+    //     align-items: center;
+    //     gap: 8px;
+    //     margin-top: 15px;
+    //     padding: 10px 16px;
+    //     background-color: #24292e;
+    //     color: white !important;
+    //     text-decoration: none;
+    //     border-radius: 6px;
+    //     font-size: 14px;
+    //     font-weight: 500;
+    //   }
+    //   .github-link:hover {
+    //     background-color: #3b4252;
+    //   }
+    // `,
     swaggerOptions: {
       persistAuthorization: true,
-      // include cookies (works for same-origin; use include if cross-origin and CORS allows credentials)
       requestInterceptor: (req) => {
         try {
           req.credentials = 'include';
