@@ -18,6 +18,7 @@ import {
   getFlashSaleProducts,
 } from "../controller/productController.js";
 import { verifyUserAuth, roleBasedAccess } from "../middleware/userAuth.js";
+import { upload } from "../middleware/multer.js";
 
 const router = express.Router();
 
@@ -54,8 +55,7 @@ router
 // Create new product
 router
   .route("/admin/product")
-  .post(verifyUserAuth, roleBasedAccess("admin"), createProduct);
-
+  .post(verifyUserAuth, roleBasedAccess("admin"),  upload.array("images",10) , createProduct);
 // Update or delete product
 router
   .route("/admin/product/:id")
