@@ -5,74 +5,63 @@ import APIFunctionality from "../utils/apiFunctionality.js";
 import { v2 as cloudinary } from "cloudinary";
 
 //create product
+
 export const createProduct = handleAsyncError(async (req, res, next) => {
-  let images = [];
-  
-  // Check if images exist in request body
-  if (req.body.images) {
-    if (typeof req.body.images === "string") {
-      images.push(req.body.images);
-    } else if (Array.isArray(req.body.images)) {
-      images = req.body.images;
-    }
-  }
-  
-  const imageLinks = [];
-  
-  // Only process images if they exist and are valid
-  if (images.length > 0) {
-    for (let i = 0; i < images.length; i++) {
+  console.log("FILES RECEIVED:", req.files);
+
+  let imageLinks = [];
+
+  if (req.files && req.files.length > 0) {
+    for (const file of req.files) {
       try {
-        // Check if it's a base64 string or valid URL
-        if (images[i].startsWith('data:image') || images[i].startsWith('http')) {
-          const result = await cloudinary.uploader.upload(images[i], {
-            folder: "products",
+        if (!file.mimetype.startsWith("image")) {
+          return res.status(400).json({
+            success: false,
+            message: "Only image files are allowed",
           });
-          imageLinks.push({ public_id: result.public_id, url: result.secure_url });
-        } else {
-          console.log(`Skipping invalid image: ${images[i]}`);
         }
+
+        const fileStr = `data:${file.mimetype};base64,${file.buffer.toString(
+          "base64"
+        )}`;
+
+        const result = await cloudinary.uploader.upload(fileStr, {
+          folder: "products",
+        });
+
+        imageLinks.push({
+          public_id: result.public_id,
+          url: result.secure_url,
+        });
       } catch (error) {
-        console.error(`Error uploading image ${i + 1}:`, error.message);
-        // Continue without this image instead of failing the entire request
+        console.error("Cloudinary Upload Error:", error);
+        return res.status(500).json({
+          success: false,
+          message: "Image upload failed",
+        });
       }
     }
+  } else {
+    console.log("❌ No files received from frontend/Postman");
   }
-  
+
   req.body.images = imageLinks;
-  req.body.user = req.user.id;
-  
-  if (req.body.salePrice && req.body.price) {
-    req.body.discount = Math.round(
-      ((req.body.price - req.body.salePrice) / req.body.price) * 100
-    );
-    req.body.isOnSale = req.body.salePrice < req.body.price;
+
+  if (req.user && req.user.id) {
+    req.body.user = req.user.id;
   }
-  
-  if (req.body.colors && req.body.colors.length > 0) {
-    for (let i = 0; i < req.body.colors.length; i++) {
-      let colorImages = [];
-      if (typeof req.body.colors[i].images === "string") {
-        colorImages.push(req.body.colors[i].images);
-      } else {
-        colorImages = req.body.colors[i].images;
-      }
-      const colorImageLinks = [];
-      for (let j = 0; j < colorImages.length; j++) {
-        const result = await cloudinary.uploader.upload(colorImages[j], { folder: "products/colors" });
-        colorImageLinks.push({ public_id: result.public_id, url: result.secure_url });
-      }
-      req.body.colors[i].images = colorImageLinks;
-    }
-  }
-  
+
   const product = await Product.create(req.body);
+
   res.status(201).json({
     success: true,
     product,
-    message: imageLinks.length === 0 ? "Product created without images" : "Product created successfully"
+    imagesUploaded: imageLinks.length,
   });
 });
+
+
+  
 
 // get all product
 export const getAllProducts = handleAsyncError(async (req, res, next) => {
